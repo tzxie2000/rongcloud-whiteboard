@@ -12,6 +12,6 @@ RongCloud Whiteboard 基于 [collabdraw](https://github.com/anandtrex/collabdraw
 
 ### 分支说明
 
-`c-sealclass:` [SealClass](http://sealclass.rongcloud.cn) 白板
+`SealClass 白板:` [https://github.com/rongcloud/rongcloud-whiteboard/tree/c-sealclass](https://github.com/rongcloud/rongcloud-whiteboard/tree/c-sealclass)
 
-`c-sealmeeting:` [SealMeeting](https://sealmeeting.rongcloud.cn/sealmeeting) 白板
+`SealMeeting 白板:` [https://github.com/rongcloud/rongcloud-whiteboard/tree/c-sealmeeting](https://github.com/rongcloud/rongcloud-whiteboard/tree/c-sealmeeting)
