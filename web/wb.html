@@ -152,14 +152,14 @@
 				}
 			}, { passive: false }) //passive防止阻止默认事件不生效
 		}
-	
-	window.setCanvasContainerLeft = function () {
-			var canvasContainer = $('#app_canvasContainer');
-			var containerWidth = canvasContainer.width();
-			var left = 'calc(50% - ' + containerWidth / 2 + 'px)';
-			canvasContainer.css('left', left);
-	};
 
+	window.setCanvasContainerLeft = function () {
+		var canvasContainer = $('#app_canvasContainer');
+		var containerWidth = canvasContainer.width();
+		var left = 'calc(50% - ' + containerWidth / 2 + 'px)';
+		canvasContainer.css('left', left);
+	};
+	
 	$(document).ready(function() {
 
 		var ios = navigator.userAgent.indexOf('iphone');//判断是否为ios
@@ -198,6 +198,7 @@
 				api.app.whiteboard.zoomReduction();
 
 				window.setCanvasContainerLeft();
+
 			}, 500, "some unique string");
 		});
 	});

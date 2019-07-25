@@ -143,7 +143,7 @@ body {
 
 #app_redoButton:hover:after {
   content: '恢复';
-  color: #21C194;
+  color: #F3A10B;
 }
 
 #app_undoButton {
@@ -160,7 +160,7 @@ body {
 
 #app_undoButton:hover:after {
   content: '撤销';
-  color: #21C194;
+  color: #F3A10B;
 }
 
 #app_clear {
@@ -177,7 +177,7 @@ body {
 
 #app_clear:hover:after {
   content: '清空';
-  color: #21C194;
+  color: #F3A10B;
 }
 
 #app_deletePage {
@@ -194,7 +194,7 @@ body {
 
 #app_deletePage:hover:after {
   content: '删除';
-  color: #21C194;
+  color: #F3A10B;
 }
 
 #app_previewPages {
@@ -212,7 +212,7 @@ body {
 
 #app_previewPages:hover:after {
   content: '分页';
-  color: #21C194;
+  color: #F3A10B;
 }
 
 #app_colorPicker {
@@ -232,7 +232,7 @@ body {
 
 #app_colorPicker:hover:after {
   content: '画笔';
-  color: #21C194;
+  color: #F3A10B;
 }
 
 #app_addNewPage {
@@ -252,7 +252,7 @@ body {
 
 #app_addNewPage:hover:after {
   content: '新增';
-  color: #21C194;
+  color: #F3A10B;
 }
 
 #app_uploadNewFile {
@@ -272,7 +272,7 @@ body {
 
 #app_uploadNewFile:hover:after {
   content: '上传';
-  color: #21C194;
+  color: #F3A10B;
 }
 
 #app_colorItemSelectedHolder::after {
