@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>whiteboard</title>
+
+<meta http-equiv="X-UA-Compatible" content="requiresActiveX=true;IE=edge;chrome=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
+<meta http-equiv="Cache-Control" content="public" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="viewport" id="viewport" content="user-scalable=no" />
+
+<link rel="stylesheet" href="css/attach.css?v=20190326-1622">
+<link rel="stylesheet" href="css/enyo.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/uploadfile.css">
+<link rel="stylesheet" href="css/jquery-confirm.min.css">
+<link rel="stylesheet" href="css/sweetalert.css">
+
+<script src="js/inobounce.js"></script>
+
+<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="js/jquery-confirm.min.js"></script>
+<script type="text/javascript" src="js/jquery.form.min.js"></script>
+<!-- <script type="text/javascript" src="js/jquery.uploadfile.min.js"></script> -->
+<script type="text/javascript" src="js/jquery.noty.packaged.min.js"></script>
+<script type="text/javascript" src="js/canvg.min.js"></script>
+<script type="text/javascript" src="js/d3.min.js"></script>
+<script type="text/javascript" src="js/draggabilly.pkgd.min.js"></script>
+<script type="text/javascript" src="js/jsxcompressor.min.js"></script>
+<script type="text/javascript" src="js/Queue.src.js"></script>
+<script type="text/javascript" src="js/raphael-min.js"></script>
+<script type="text/javascript" src="js/raphael.export.min.js"></script>
+<script type="text/javascript" src="js/raphael.inline_text_editing.js"></script>
+<script type="text/javascript" src="js/rgbcolor.min.js"></script>
+<script type="text/javascript" src="js/scale.raphael.min.js"></script>
+<script type="text/javascript" src="js/StackBlur.min.js"></script>
+<script type="text/javascript" src="js/sweetalert.min.js"></script>
+<script type="text/javascript" src="js/hammer.min.js"></script>
+
+<script type="text/javascript" src="js/lib/enyo.js"></script>
+<script type="text/javascript" src="js/lib/enyo-ilib.js"></script>
+<script type="text/javascript" src="js/lib/layout.js"></script>
+<script type="text/javascript" src="js/lib/onyx.js"></script>
+
+<script type="text/javascript" src="config.js?v=20190326-1622"></script>
+<script type="text/javascript" src="js/common.js?v=20190326-1622"></script>
+
+<script id="RongAlert" type="text/x-template">
+	<div class="rong-dialog-box">
+		<div class="rong-dialog-confirm rong-dialog">
+			<h3>提示</h3>
+			<p class="rong-confirm-content">{content}</p>
+			<div class="rong-confirm-btns">
+				<button class="rong-confirm-cancel">取消</button>
+				<button class="rong-confirm-ok">确定</button>
+			</div>
+		</div>
+	</div>
+</script>
+
+<script type="text/javascript">
+	var ewb_server_path = global_config.server_path;
+	var ewb_file_server_path = global_config.file_server_path;
+	var ewb_load_interval = global_config.load_interval;
+	var ewb_width = global_config.width;
+	var ewb_height = global_config.height;
+
+	var ewb_roomKey = getParameterByName('roomKey');
+	var ewb_token = getParameterByName('token');
+	var ewb_clientType = getParameterByName('type');
+	var ewb_role = getParameterByName('role');
+	var ewb_userId = getParameterByName('userId');
+	if (ewb_userId == null || ewb_userId == '') {
+		ewb_userId = guid();
+	}
+</script>
+
+<script type="text/javascript" src="js/ewb/WhiteBoardApi.js?v=20190326-1622"></script>
+<script type="text/javascript" src="js/ewb/App.js?v=20190326-1622"></script>
+<script type="text/javascript" src="js/ewb/Svg.js?v=20190326-1622"></script>
+<script type="text/javascript" src="js/ewb/Connection.js?v=20190326-1622"></script>
+<script type="text/javascript" src="js/blink/blinkEwb.js?v=20190326-1622"></script>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		var RoleENUM = {
+			ASSISTANT: 1,
+			TEACHER: 2,
+			STUDENT: 3,
+			AUDIENCE: 4,
+			1: 'assistant',
+			2: 'teacher',
+			3: 'student',
+			4: 'audience'
+		};
+
+		function urlToJson(url) {
+			var arr = url.split('?')[1].split('&');
+			var obj = {};
+			for (var i = 0; i < arr.length; i++) {
+				var value = arr[i];
+				obj[value.split('=')[0]] = value.split('=')[1];
+			}
+			return obj;
+		}
+		window.urlToJson = urlToJson;
+
+		function setRole(role) {
+			role = role || RoleENUM.AUDIENCE;
+			window.document.body.id = 'rong-role-' + role;
+		}
+
+		function changeRole(role, whiteBoardId) {
+			var url = window.location.href;
+			if (url.indexOf(whiteBoardId) !== -1) {
+				setRole(role);
+			}
+		}
+
+		var url = window.location.href;
+		var data = urlToJson(url);
+		setRole(data.role);
+
+		window.changeRole = changeRole;
+	});
+</script>
+
+<script type="text/javascript">
+
+		function iosTrouchFn(el) {
+			//el需要滑动的元素
+			el.addEventListener('touchmove', function (e) {
+				e.isSCROLL = true;
+			})
+			document.body.addEventListener('touchmove', function (e) {
+				if (!e.isSCROLL) {
+					e.preventDefault(); //阻止默认事件(上下滑动)
+				} else {
+					//需要滑动的区域
+					var top = el.scrollTop; //对象最顶端和窗口最顶端之间的距离 
+					var scrollH = el.scrollHeight; //含滚动内容的元素大小
+					var offsetH = el.offsetHeight; //网页可见区域高
+					var cScroll = top + offsetH; //当前滚动的距离
+
+					//被滑动到最上方和最下方的时候
+					if (top == 0) {
+						top = 1; //0～1之间的小数会被当成0
+					} else if (cScroll === scrollH) {
+						el.scrollTop = top - 0.1;
+					}
+				}
+			}, { passive: false }) //passive防止阻止默认事件不生效
+		}
+	
+	window.setCanvasContainerLeft = function () {
+			var canvasContainer = $('#app_canvasContainer');
+			var containerWidth = canvasContainer.width();
+			var left = 'calc(50% - ' + containerWidth / 2 + 'px)';
+			canvasContainer.css('left', left);
+	};
+
+	$(document).ready(function() {
+
+		var ios = navigator.userAgent.indexOf('iphone');//判断是否为ios
+
+		if (ios == -1) {
+			//ios下运行
+			var divEl = window.document.querySelector('body');
+			iosTrouchFn(divEl);
+		}
+
+		/* Call WhiteBoardApi */
+		var api = new WhiteBoardApi();
+		api.canvasWidth = ewb_width;
+		api.canvasHeight = ewb_height;
+		api.canvasNode = document.body;
+		var params = {
+			role : ewb_role
+		};
+		api.join(params);
+
+		// 根据底部工具栏宽度调整间距
+		if (!api.app.isMobile() && !api.app.isGuest()) {
+			resizeBottomToolBar();
+		}
+		// 监听窗口大小变化
+		$(window).resize(function() {
+			waitForFinalEvent(function() {
+				console.debug("window resize");
+				// 根据底部工具栏宽度调整间距
+				if (!api.app.isMobile() && !api.app.isGuest()) {
+					resizeBottomToolBar();
+				}
+				// 设置缩放率
+				api.app.whiteboard.setZoomRatioCustom();
+				// 调整面板
+				api.app.whiteboard.zoomReduction();
+
+				window.setCanvasContainerLeft();
+			}, 500, "some unique string");
+		});
+	});
+
+	/**
+	 * 根据底部工具栏宽度调整间距
+	 *
+	 */
+	function resizeBottomToolBar() {
+		// 原始大小
+		var marginLeft = "6px";
+		var marginRight = "6px";
+		var parent_paddingLeft = "8px";
+		var parent_paddingRight = "8px";
+		var button_padding = "18px";
+		var bottomToolBarClient = $("#app_bottomToolbar_client");
+		var bottomToolBar = bottomToolBarClient.parent();
+		var bottomToolBarClient_width = bottomToolBarClient.width();
+		if (bottomToolBarClient_width < 650) {
+			if ($("#app_middleFittableRows").height() == 393) {
+				$("#app_middleFittableRows").css({"height": 394})
+			}
+			marginLeft = "-1px";
+			marginRight = "-1px";
+			parent_paddingLeft = "1px";
+			parent_paddingRight = "1px";
+			button_padding = "16px";
+			bottomToolBarClient.css({
+				"minWidth": 578
+			})
+		} else if (bottomToolBarClient_width < 700) {
+			marginLeft = "0px";
+			marginRight = "0px";
+			parent_paddingLeft = "2px";
+			parent_paddingRight = "2px";
+			button_padding = "17px";
+		} else if (bottomToolBarClient_width < 750) {
+			marginLeft = "1px";
+			marginRight = "1px";
+			parent_paddingLeft = "3px";
+			parent_paddingRight = "3px";
+		} else if (bottomToolBarClient_width < 800) {
+			marginLeft = "2px";
+			marginRight = "2px";
+			parent_paddingLeft = "4px";
+			parent_paddingRight = "4px";
+		} else if (bottomToolBarClient_width < 850) {
+			marginLeft = "3px";
+			marginRight = "3px";
+			parent_paddingLeft = "5px";
+			parent_paddingRight = "5px";
+		} else if (bottomToolBarClient_width < 900) {
+			marginLeft = "4px";
+			marginRight = "4px";
+			parent_paddingLeft = "6px";
+			parent_paddingRight = "6px";
+		}
+		bottomToolBarClient.children().css("margin-left", marginLeft);
+		bottomToolBarClient.children().css("margin-right", marginRight);
+		bottomToolBar.css("padding-left", parent_paddingLeft);
+		bottomToolBar.css("padding-right", parent_paddingRight);
+		$("#app_bottomToolbar_client button").css({"padding-left": button_padding, "padding-right": button_padding})
+	}
+</script>
+<script>
+
+		var createDom = function (innerHTML) {
+			var div = window.document.createElement('div');
+			div.innerHTML = innerHTML;
+			return div.children[0];
+		};
+		var tplEngine = function (temp, data, regexp) {
+			var replaceAction = function (object) {
+				return temp.replace(regexp || (/{([^}]+)}/g), function (match, name) {
+					if (match.charAt(0) === '\\') return match.slice(1);
+					return (object[name] !== undefined) ? object[name] : '{' + name + '}';
+				});
+			};
+			if (!(Object.prototype.toString.call(data) === '[object Array]')) data = [data];
+			var ret = [];
+			for (var i = 0, j = data.length; i < j; i++) {
+				ret.push(replaceAction(data[i]));
+			}
+			return ret.join('');
+		};
+
+		
+		function sealAlert(str, params) {
+			var AlertTemp = window.document.getElementById('RongAlert').innerText; // 提示弹框展示模板
+			params = params || {};
+			var cancelDisplay = params.isShowCancel ? 'inline-block' : 'none';
+			var innerHTML = tplEngine(AlertTemp, {
+				content: str
+			});
+			var alertBox = createDom(innerHTML);
+			var cancelBtnDom = alertBox.querySelector('.rong-confirm-cancel');
+			var confirmBtnDom = alertBox.querySelector('.rong-confirm-ok');
+			if (params.confirmText) {
+				confirmBtnDom.value = params.confirmText;
+			}
+			if (!params.isShowCancel) {
+				cancelBtnDom.style.display = 'none';
+			}
+			window.document.body.appendChild(alertBox);
+			cancelBtnDom = cancelBtnDom || {};
+			confirmBtnDom = confirmBtnDom || {};
+			cancelBtnDom.onclick = function () {
+				params.cancelCallback && params.cancelCallback();
+				window.document.body.removeChild(alertBox);
+			};
+			confirmBtnDom.onclick = function () {
+				params.confirmCallback && params.confirmCallback();
+				window.document.body.removeChild(alertBox);
+			};
+		}
+		window.sealAlert = sealAlert;
+
+		/**
+		 * http 请求
+		 * @param {object} option 
+		 * @param {object} option.url 地址
+		 * @param {object} option.queryStrings
+		 * @param {object} option.headers
+		 * @param {object} option.body
+		 */
+			function ajax(option) {
+				var xhr = new window.XMLHttpRequest();
+				var method = option.method || 'GET';
+				var url = option.url;
+				var queryStrings = option.queryStrings || {};
+				var tpl = '{key}={value}', strings = [];
+				for (var key in queryStrings) {
+					var value = queryStrings[key];
+					var str = tplEngine(tpl, {
+						key: key,
+						value: value
+					});
+					strings.push(str);
+				}
+				queryStrings = strings.join('&');
+				var urlTpl = '{url}?{queryString}';
+				url = tplEngine(urlTpl, {
+					url: url,
+					queryString: queryStrings
+				});
+				xhr.open(method, url, true);
+
+				var headers = option.headers || {};
+				for (var name in headers) {
+					var header = headers[name];
+					xhr.setRequestHeader(name, header);
+				}
+
+				var isSuccess = function (xhr) {
+					return /^(200|202|10000)$/.test(xhr.status);
+				};
+				var success = option.success || noop;
+				var fail = option.fail || noop;
+				var onLoad = function () {
+					var result = xhr.responseText;
+					if (isSuccess(xhr)) {
+						success(result);
+					} else {
+						fail(result);
+					}
+				}
+				if ('onload' in xhr) {
+					xhr.onload = onLoad;
+				} else {
+					xhr.onreadystatechange = function () {
+						if (xhr.readyState === 4) {
+							onLoad();
+						}
+					};
+				}
+				xhr.onerror = function (result) {
+					fail(result);
+				};
+
+				xhr.send(option.body);
+			}
+
+			var request = function (url, method, body, queryStrings) {
+					var fullUrl = tplEngine('{server}{url}', {
+						server: window.global_config.seal_class_server_path,
+						url: url
+					});
+					var url = window.location.href;
+					var data = window.urlToJson(url);
+					var options = {
+						url: fullUrl,
+						method: method,
+						headers: {
+							'Content-Type': 'application/json;charset=UTF-8',
+							'Authorization': data.Authorization || data.authorization || data.auth
+						},
+						queryStrings: queryStrings,
+						body: JSON.stringify(body)
+					};
+
+					return new window.Promise(function (resolve, reject) {
+						options.success = function (result) {
+							result = JSON.parse(result);
+							var errorCode = result.errCode;
+							if (errorCode === 0) {
+								resolve(result.data.result);
+							} else {
+								reject(result);
+							}
+						};
+						options.fail = reject;
+						ajax(options);
+					});
+				};
+
+				var Http = {
+					get: function (url, data) {
+						return request(url, 'GET', null, data);
+					},
+					post: function (url, data) {
+						return request(url, 'POST', data);
+					}
+				};
+
+
+			function deleteWhiteboard() {
+				var url = window.location.href;
+				var data = window.urlToJson(url);
+				var whiteboardUrl = window.location.href;
+				var index = whiteboardUrl.indexOf('&role');
+				var whiteboardId = whiteboardUrl.substring(0, index);
+				var roomId = data.roomId;
+				var url = '/room/whiteboard/delete';
+				return Http.post(url, {
+					roomId: roomId,
+					whiteboardId: whiteboardId
+				});
+			}
+
+			window.rongAjax = ajax;
+			window.deleteWhiteboard = deleteWhiteboard;
+
+</script>
+</head>
+<body class="enyo-unselectable">
+</body>
+</html>

@@ -117,7 +117,8 @@ enyo.kind({
     	// 设置画板容器宽度
     	this.canvasContainerWidth = $('html,body').width();
     	// 设置画板容器高度
-    	this.canvasContainerHeight = $('html,body').height() - ($("#app_bottomToolbar").outerHeight() + 5);
+        // this.canvasContainerHeight = $('html,body').height() - ($("#app_bottomToolbar").outerHeight() + 5);
+        this.canvasContainerHeight = $('html,body').height();
     	
     	var widthRatio = this.canvasContainerWidth / this.canvasWidth;
     	var heightRatio = this.canvasContainerHeight / this.canvasHeight;

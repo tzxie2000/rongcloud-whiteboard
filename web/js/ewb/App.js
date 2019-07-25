@@ -136,6 +136,7 @@ enyo.kind({
                             websocketAddress,
                             this.owner.role,
                             function(numPages, currentPage) {
+                                window.setCanvasContainerLeft();
                                 // update button status after being initialized.
                                 _this.owner.updatePageInfo();
                                 _this.owner.$.loadingPopup.hide();
@@ -192,6 +193,34 @@ enyo.kind({
                     content: $L('Attach a file or create a new page.'),
                     classes: 'above',
                     style: "margin-top: 20px;"
+                }]
+                }, {
+                    kind: "onyx.TooltipDecorator",
+                    style: "float:left;margin:8px 0 20px",
+                    components: [{
+                        name: "uploadNewFile",
+                        kind: "onyx.Button",
+                        ontap: "uploadFileNew",
+                        style: "background:url(images/wb.svg);background-repeat:no-repeat;background-color:transparent;background-position:-37px -69px;cursor:pointer;",
+                    }, {
+                        kind: "onyx.Tooltip",
+                        content: $L("Preview Pages"),
+                        classes: "above",
+                        style: "margin-top: -10px;"
+                    }]
+                },{
+                kind: "onyx.TooltipDecorator",
+                style: "float:left;margin:8px 0 20px",
+                components: [{
+                    name: "addNewPage",
+                    kind: "onyx.Button",
+                    ontap: "selectNewPage",
+                    style: "background:url(images/wb.svg);background-repeat:no-repeat;background-color:transparent;background-position:-37px -69px;cursor:pointer;",
+                }, {
+                    kind: "onyx.Tooltip",
+                    content: $L("Preview Pages"),
+                    classes: "above",
+                    style: "margin-top: -10px;"
                 }]
             }, {
                 kind: "onyx.TooltipDecorator",
@@ -630,6 +659,7 @@ enyo.kind({
         }
         if (this.isMobile()) { // 绑定手势
             var _this = this;
+            _this.openPen();
             var svg = document.getElementsByTagName('svg')[0];
     		var hamSvg = new Hammer(svg);
     		// pinch
@@ -655,7 +685,7 @@ enyo.kind({
 				// 隐藏预览窗口
 				_this.$.previewPagesPopup.hide();
 				// 向后翻页
-				_this.gotoNextPage();
+				// _this.gotoNextPage();
 			});
 			hamSvg.on('swiperight', function(e) {
 				if (_this.whiteboard.zoomRatio > _this.whiteboard.zoomRatioCustom) {
@@ -664,7 +694,7 @@ enyo.kind({
 				// 隐藏预览窗口
 				_this.$.previewPagesPopup.hide();
 				// 向前翻页
-				_this.gotoPreviousPage();
+				// _this.gotoPreviousPage();
 			});
 			/*hamSvg.on('swipedown', function(e) {
 				if (_this.whiteboard.zoomRatio > _this.whiteboard.zoomRatioCustom) {
@@ -1197,19 +1227,35 @@ enyo.kind({
         var totalPagesNum = this.whiteboard.getNumPages(),
             self = this;
         if (totalPagesNum <= 1) {
-            $.alert($L("The last page cannot be deleted."));
+            window.sealAlert($L('delete whiteboard.'), {
+                isShowCancel: true,
+                confirmCallback: function () {
+                    window.deleteWhiteboard().then(function () {
+                        window.sealAlert('删除成功');
+                    }).catch(function () {
+                        window.sealAlert('删除失败');
+                    });
+                }
+            });
+            // $.alert($L("The last page cannot be deleted."));
             return;
         }
-        var yes = $.confirm({
-            title: $L("Confirm"),
-            content: $L("Do you want to delete this page?"),
-            confirm: function() {
+        window.sealAlert($L("Do you want to delete this page?"), {
+            confirmCallback: function () {
                 self.whiteboard.deletePage();
             },
-            cancel: function() {
-                // do nothing.
-            }
+            isShowCancel: true
         });
+        // var yes = $.confirm({
+        //     title: $L("Confirm"),
+        //     content: $L("Do you want to delete this page?"),
+        //     confirm: function() {
+        //         self.whiteboard.deletePage();
+        //     },
+        //     cancel: function() {
+        //         // do nothing.
+        //     }
+        // });
     },
     deleteButtonMouseOver: function(inSender, inEvent) {
         this.$.deletePage.applyStyle("background-position", "-115px -664px");
@@ -1383,6 +1429,7 @@ enyo.kind({
 				url = pageFile.thumbnail;
 			}
             var comp = this.createComponent({
+                classes: 'rong-page',
                 container: this.$.previewPagesPopup,
                 style: "border:4px solid white; display:inline-block;float:left;width:120px;height:118px;;margin:10px;color:#000;background:url(" + url + ") center center no-repeat #FFF;background-size:contain;cursor:pointer;",
                 content: "<div style='text-align:center;height: 100%;font-size:3em;'> " + page + " </div>",
@@ -1431,16 +1478,22 @@ enyo.kind({
     selectClear: function(inSender, inEvent) {
         var self = this;
         self.cancelSelect();
-        var yes = $.confirm({
-            title: $L("Confirm"),
-            content: $L("Do you want to clear this page?"),
-            confirm: function() {
+        window.sealAlert($L("Do you want to clear this page?"), {
+            confirmCallback: function () {
                 self.whiteboard.clear(true);
             },
-            cancel: function() {
-                // do nothing.
-            }
+            isShowCancel: true
         });
+        // var yes = $.confirm({
+        //     title: $L("Confirm"),
+        //     content: $L("Do you want to clear this page?"),
+        //     confirm: function() {
+        //         self.whiteboard.clear(true);
+        //     },
+        //     cancel: function() {
+        //         // do nothing.
+        //     }
+        // });
     },
 
     selectCreateJoinRoom: function(inSender, inEvent) {

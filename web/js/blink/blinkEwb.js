@@ -91,15 +91,15 @@ BlinkEwb.prototype.pageNotFound = function() {
 	// 停止刷新
 	this.exitLoadPage();
 	var blinkEwb = this;
-	$
-			.alert({
-				title : $L("Confirm"),
-				content : $L("This page has been deleted, click OK to go to last page"),
-				confirm : function() {
-					// 跳转到入口页
-					blinkEwb.gotoEntryPage();
-				}
-			});
+	// $
+	// 		.alert({
+	// 			title : $L("Confirm"),
+	// 			content : $L("This page has been deleted, click OK to go to last page"),
+	// 			confirm : function() {
+	// 				// 跳转到入口页
+	// 				blinkEwb.gotoEntryPage();
+	// 			}
+	// 		});
 }
 /**
  * 渲染背景图片
@@ -152,6 +152,32 @@ BlinkEwb.prototype.upload = function() {
 				if (this.value == '') {
 					return;
 				}
+				var file = {};
+				try {
+					file = this.files[0];
+				} catch(e) {
+
+				}
+				var name = file.name,
+					size = file.size;
+				name = name.toLocaleLowerCase();
+				var allowTypes = ['png', 'jpeg', 'jpg', 'pdf', 'ppt', 'doc', 'docs', 'xlsx', 'xls'];
+				var isAllow = function (name) {
+					var allow = false;
+					allowTypes.forEach(function (type) {
+						if (name.indexOf(type) !== -1) {
+							allow = true;
+						}
+					});
+					return allow;
+				};
+				if (!isAllow(name)) {
+					return window.sealAlert('不支持的文件类型');
+				}
+				if (size > 32273900) {
+					return window.sealAlert('上传文件大小不能超过 30MB');
+				}
+
 				swal({
 					title : "",
 					text : $L("File uploading, please wait"),
@@ -178,13 +204,13 @@ BlinkEwb.prototype.upload = function() {
 							blinkEwb.uploadFile(data.data);
 						} else {
 							swal.close();
-							$.alert($L("File upload error, please try again"));
+							window.sealAlert($L("File upload error, please try again"));
 						}
 					},
 					error : function(err) {
 						$("#uploadFileForm").remove();
 						swal.close();
-						$.alert($L("File upload error, please try again"));
+						window.sealAlert($L("File upload error, please try again"));
 					}
 				};
 				$("#uploadFileForm").ajaxSubmit(options);
@@ -603,16 +629,21 @@ BlinkEwb.prototype.uploadFile = function(file) {
 		success : function(data) {
 			swal.close();
 			if (data.code == 200) {
-				$.alert($L("File uploaded"));
+				window.sealAlert($L("File uploaded"), {
+					confirmCallback: function () {
+						blinkEwb.gotoEntryPage();
+					}
+				});
+				// $.alert($L("File uploaded"));
 				// 跳转到入口页
-				blinkEwb.gotoEntryPage();
 			} else {
 				$.alert(data.msg);
 			}
 		},
 		error : function(err) {
 			swal.close();
-			$.alert($L("File upload error, please try again"));
+			window.sealAlert($L("File upload error, please try again"));
+			// $.alert($L("File upload error, please try again"));
 			console.error(new Date());
 			console.error(err);
 		}

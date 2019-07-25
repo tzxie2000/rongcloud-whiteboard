@@ -54,5 +54,6 @@ function WhiteBoardApi() {
         //this.app.setExpiredMinutes(this.expired);
         this.app.expiredMinutes = this.expired;
         this.app.renderInto(this.canvasNode);
+        window.setCanvasContainerLeft();
     }
 }

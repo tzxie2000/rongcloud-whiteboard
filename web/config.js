@@ -1,6 +1,8 @@
 var global_config = {
-	server_path: 'http://10.xx.xx.xx:9500', // 白板服务地址
-	file_server_path: 'http://10.xx.xx.xx:9300', // 白板文件服务地址
-	width: 1280, // 白板宽度
-	height: 960 // 白板高度
+  server_path: 'https://server_path',
+  file_server_path: 'https://file_server_path',
+  load_interval : 1 * 1000,
+  width : 2800,
+  height : 2100,
+  seal_class_server_path: 'https://sealclass_server_path'
 };
